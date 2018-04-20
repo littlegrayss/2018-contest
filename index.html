@@ -4,19 +4,27 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>2048</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, minimum-scale=1,user-scalable=no">
     <link rel="stylesheet" type="text/css" media="screen" href="./css/main.css" />
-    <script src="./js/main.js"></script>
+    
 </head>
 <body>
     <div class="container">
-        <h1>2048 游戏</h1>
-        <!-- 分数 -->
-        <div class="score"></div>
-        <!-- /分数 -->
+        <header>
+            <h1>2048 游戏</h1>
+            <div>
+            <!-- 分数 -->
+            <span class="score" id="score">0</span>
+            <!-- /分数 -->
+            <!-- 历史最高分数 -->
+            <span class="score history-score" id="historyScore">0</span>
+            <!-- /历史最高分数 -->
+            </div>
+        </header>
+        
         <div class="game-wrap">
             <!-- 棋盘 -->
-            <div class="grid" id="chessboard">
+            <div class="grid">
                 <div class="grid-row">
                     <span class="grid-cell"></span>
                     <span class="grid-cell"></span>
@@ -44,18 +52,19 @@
             </div>
             <!-- /棋盘 -->
             <!-- 棋子 -->
-            <!-- <div class="piece-wrap" >
-                <div class="piece piece-2">2</div>
-                <div class="piece piece-4">4</div>
-                <div class="piece piece-8">8</div>
-                <div class="piece piece-16">16</div>
-                <div class="piece piece-32">32</div>
-                <div class="piece piece-64">64</div>
-                <div class="piece piece-128">128</div>
-                <div class="piece piece-2048">2048</div>
-            </div> -->
+             <div class="piece-wrap"  id="chessboard">
+                
+            </div> 
             <!-- /棋子 -->
+            
         </div>
+        <button type="button" class="again" id='again'>重来</button>
     </div>
+    <script>
+        document.body.addEventListener('touchmove',function(e) {
+            e.preventDefault();
+        },{passive:false})
+    </script>
+<script src="./js/main.js"></script>
 </body>
 </html>

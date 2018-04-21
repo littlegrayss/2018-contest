@@ -51,20 +51,22 @@
                 </div>
             </div>
             <!-- /棋盘 -->
+
             <!-- 棋子 -->
-             <div class="piece-wrap"  id="chessboard">
-                
-            </div> 
+             <div class="piece-wrap"  id="chessboard"></div> 
             <!-- /棋子 -->
             
         </div>
-        <button type="button" class="again" id='again'>重来</button>
+        <!-- 重来按钮 -->
+        <!-- <button type="button" class="again-btn" id="again">重来</button> -->
     </div>
     <script>
+        //取消safari的默认效果
         document.body.addEventListener('touchmove',function(e) {
             e.preventDefault();
         },{passive:false})
+
     </script>
-<script src="./js/main.js"></script>
+    <script src="./js/main.js"></script>
 </body>
 </html>

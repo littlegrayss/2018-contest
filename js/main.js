@@ -3,72 +3,63 @@ function Game() {
 }
 
 //初始化
-Game.prototype.init = function() { 
-    var _this = this;
-    var btn = document.getElementById('again');
-    btn.addEventListener('click',function() {
-        if (_this.score > localStorage.getItem('historyScore')) {
-        localStorage.setItem('historyScore', _this.score);
-        }
-        _this.init();        
-    },false);
-    var historyScore = document.getElementById('historyScore');
-    historyScore.innerText = localStorage.getItem('historyScore') || 0;
+Game.prototype.init = function() {     
     this.deleteAll();
     this.score = 0;    //游戏分数
-    this.max = 0;    //最大的棋子
     this.pieceArr = [];    //棋子数组  
-    this.updateScore();
-    this.createArray();    //创建二维数组
+    this.updateScore();    //更新分数
+    this.createArray(this.pieceArr); //创建二维数组
     this.createPiece();    //创建一个随机棋子
     this.createPiece();
-    this.listenEvent();
-    this.liestenTouch();
+    this.listenEvent();    //监听键盘事件
+    this.liestenTouch();    //监听移动端手指事件
 }
 //创建二维数组并赋值为0
-Game.prototype.createArray = function() {  
-    var localArry = []  
+Game.prototype.createArray = function(arr) {        
     for (var i = 0; i < 4; i++) {
-        localArry[i] = [];
+        arr[i] = [];
         for (var j = 0; j < 4; j++) {
-            localArry[i][j] = 0;
+            arr[i][j] = 0;
         }
-    }
-    console.log(localArry);
-    
-    this.pieceArr = localArry;
+    }    
+    return arr;
 }
 //创建一个随机棋子
 Game.prototype.createPiece = function() {
     var num = Math.random()>0.8?4:2;
     var x = Math.floor(Math.random() * 4);
     var y = Math.floor(Math.random() * 4);
-    while (this.pieceArr[y][x] != 0 ) { //如果棋盘上已经有棋子，跳过再创建
+    while (this.pieceArr[y][x] != 0 ) { //如果棋盘上已经有棋子，跳过再创建  warn:有可能会溢出
         x = Math.floor(Math.random()*4);
         y = Math.floor(Math.random()*4);
-    }
-    console.log('2');
-    
-    this.pieceArr[y][x] = num;    
-    this.drawPiece(y,x,num,true,false);    //绘制棋子
+    }    
+    this.pieceArr[y][x] = num;   
+    var option = {} 
+    option.isNew = true;
+    option.isMerge = false;
+    this.drawPiece(y,x,num,option);    //绘制棋子
 }
 /*
  * 绘制棋子
  * param1：棋子纵坐标
  * param2：棋子横坐标
  * param3：棋子数字
+ * param4: 棋子配置：
+ *      sNew: true 新棋子的样式
+ *      isMerge: true 合并棋子的样式
  */
-Game.prototype.drawPiece = function(y,x,num,isNew,isMerge) {
-    var New = isNew || false;
-    var Merge = isMerge || false;
+Game.prototype.drawPiece = function(y,x,num,option) {
+    var option = option || {};
+    var isNew = option.isNew|| false;
+    var isMerge = option.isMerge || false;
     var chessboard = document.getElementById('chessboard');
     var piece = document.createElement('div');
     piece.id = y + ' ' + x;
     piece.className = 'piece piece-' + num;
-    if (New) {
+    if (isNew) {
         piece.classList.add('new-piece');
     }
-    if (Merge) {
+    if (isMerge) {
         piece.classList.add('merge-piece');
     }
     piece.textContent = num;
@@ -84,10 +75,9 @@ Game.prototype.drawPiece = function(y,x,num,isNew,isMerge) {
 Game.prototype.deletePiece = function(y, x) {
     var piece = document.getElementById(y + ' ' + x);
     var chessboard = document.getElementById('chessboard');
-    // console.log(y,x);
-    
-    chessboard.removeChild(piece);
-    // this.pieceArr[y][x] = 0;
+    if (piece) {
+        chessboard.removeChild(piece);
+    }
 }
 
 //监听上下左右键
@@ -214,8 +204,8 @@ Game.prototype.liestenTouch = function() {
 
     }
 }
+//判断是否能左移，能为true，不能返回false
 Game.prototype.canMoveUp = function() {
-    console.log('1')
     for (var i = 0; i < 4; i++) {
         for (var j = 1; j < 4; j++) {
             if (this.pieceArr[j][i] != 0) {
@@ -272,8 +262,6 @@ Game.prototype.moveUp = function() {
 
             var next = -1;
             for (var m = j + 1, len = this.pieceArr[i].length; m < len; m++) {
-                // console.log('m='+m+' j='+j+' i='+i);
-                // console.log(this.pieceArr);
 
                 if (this.pieceArr[m][i] !== 0) {
                     next = m;
@@ -289,10 +277,10 @@ Game.prototype.moveUp = function() {
                     j--;
                     console.log(this.pieceArr);
                 } else if (this.pieceArr[next][i] === this.pieceArr[j][i]) {
-                    console.log('next=' + next + ' j=' + j + ' i=' + i);
+                    localScore += this.pieceArr[j][i]*2;
                     this.mergePiece(j, i, next, i, this.pieceArr[next][i] * 2);                    
                     this.pieceArr[j][i] = this.pieceArr[next][i] + this.pieceArr[j][i];
-                    localScore += this.pieceArr[j][i];
+                    
                     this.pieceArr[next][i] = 0;
                     console.log(this.pieceArr); 
                 }     
@@ -310,7 +298,6 @@ Game.prototype.moveDown = function() {
 
             var next = -1;
             for (var m = j - 1; m >= 0; m--) {
-                // console.log('m='+m+' j='+j+' i='+i);
 
                 if (this.pieceArr[m][i] !== 0) {
                     next = m;
@@ -323,13 +310,11 @@ Game.prototype.moveDown = function() {
                     this.movePiece(j, i, next, i, this.pieceArr[next][i]);
                     this.pieceArr[next][i] = 0;
                     j++;
-                    // console.log(this.pieceArr);
                 } else if (this.pieceArr[j][i] === this.pieceArr[next][i]) {
+                    localScore += this.pieceArr[j][i]*2;
                     this.mergePiece(j, i, next, i, this.pieceArr[j][i] * 2);
-                    this.pieceArr[j][i] = this.pieceArr[j][i] + this.pieceArr[next][i];
-                    localScore += this.pieceArr[j][i];
+                    this.pieceArr[j][i] = this.pieceArr[j][i] + this.pieceArr[next][i];                    
                     this.pieceArr[next][i] = 0;
-                    // console.log(this.pieceArr); 
                 } 
             }
         }
@@ -345,7 +330,6 @@ Game.prototype.moveLeft = function() {
             
             var next = -1;
             for (var m = j + 1, len = this.pieceArr[i].length; m < len; m++) {
-                // console.log('m='+m+' j='+j+' i='+i);
                 
                 if (this.pieceArr[i][m] !== 0) {
                     next = m;
@@ -358,14 +342,12 @@ Game.prototype.moveLeft = function() {
                     this.movePiece(i, j, i,next, this.pieceArr[i][next]);
                     this.pieceArr[i][next] = 0;
                     j--;
-                    // console.log(this.pieceArr);
                 }
                 else if (this.pieceArr[i][j] === this.pieceArr[i][next]) {
                         this.mergePiece(i, j, i, next,this.pieceArr[i][j] * 2);
                         this.pieceArr[i][j] = this.pieceArr[i][j] + this.pieceArr[i][next];
                         localScore += this.pieceArr[j][i];
                         this.pieceArr[i][next] = 0;
-                        // console.log(this.pieceArr); 
                     }            
                 
                 
@@ -383,7 +365,6 @@ Game.prototype.moveRight = function() {
 
             var next = -1;
             for (var m = j - 1; m >= 0; m--) {
-                // console.log('m='+m+' j='+j+' i='+i);
 
                 if (this.pieceArr[i][m] !== 0) {
                     next = m;
@@ -396,13 +377,11 @@ Game.prototype.moveRight = function() {
                     this.movePiece(i, j, i, next, this.pieceArr[i][next]);
                     this.pieceArr[i][next] = 0;
                     j++;
-                    // console.log(this.pieceArr);
                 } else if (this.pieceArr[i][j] === this.pieceArr[i][next]) {
                     this.mergePiece(i, j, i, next, this.pieceArr[i][j] * 2);
                     this.pieceArr[i][j] = this.pieceArr[i][j] + this.pieceArr[i][next];
                     localScore += this.pieceArr[j][i];
                     this.pieceArr[i][next] = 0;
-                    // console.log(this.pieceArr); 
                 } 
             }
         }
@@ -410,12 +389,15 @@ Game.prototype.moveRight = function() {
     this.score = localScore;
    
 }
+/*  移动棋子
+ *  param1：  最终移动位置的纵坐标
+ *  param2：  最终移动位置的横坐标
+ *  param3：  开始移动位置的纵坐标
+ *  param4：  开始移动位置的横坐标
+ *  param5：  要移动的数字
+ */ 
 Game.prototype.movePiece = function (toY, toX, fromY, fromX, num) {
     console.log('move');  
-    console.log('toY=' + (toY+1) + ' toX' + (toX+1) + ' fromY' +( fromY +1)+ ' fromX' + (fromX+1)); 
-    
-    console.log(this.pieceArr)
-
     var _this = this; 
 
     var div = document.getElementById(fromY + ' ' + fromX);
@@ -424,8 +406,9 @@ Game.prototype.movePiece = function (toY, toX, fromY, fromX, num) {
     console.log(x, y)
     var timer = null;
 
-    function a() {
+    (function () {
         clearInterval(timer);
+        console.time('time1')
         timer = setInterval(function () {
             if (x < toX * 6) {
                 x = x + 0.5;
@@ -446,21 +429,24 @@ Game.prototype.movePiece = function (toY, toX, fromY, fromX, num) {
                 setTimeout(function () {
                     _this.deletePiece(fromY, fromX);
                     _this.drawPiece(toY, toX, num, false, false)
+                    console.timeEnd('time1')
                 }, 0)
             }
         }, 10)
-    }
-    a();
+    })
+    
 
-    // this.deletePiece(fromY, fromX);
-    // this.drawPiece(toY, toX, num,false,false)
 }
+/*  合并棋子
+ *  param1：  第一个棋子位置的纵坐标
+ *  param2：  第一个棋子位置的横坐标
+ *  param3：  第二个棋子位置的纵坐标
+ *  param4：  第二个棋子位置的横坐标
+ *  param5：  合并后的数字
+ */
 Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
 
     console.log('merge');    
-    console.log('toY=' + (toY + 1) + ' toX' + (toX + 1) + ' fromY' + (fromY + 1) + ' fromX' + (fromX + 1));    
-    
-    console.log(this.pieceArr)
 
     var _this = this;
 
@@ -470,7 +456,7 @@ Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
     console.log(x, y)
     var timer = null;
 
-    function a() {
+    (function () {
         clearInterval(timer);
         timer = setInterval(function () {
             if (x < toX * 6) {
@@ -496,8 +482,8 @@ Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
                 }, 0)
             }
         }, 10)
-    }
-    a();
+    })
+   
 
 
 
@@ -509,37 +495,39 @@ Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
     // this.drawPiece(toY,toX,num,false,true);
 
 }
+//判断输赢
 Game.prototype.checkWin = function() {
     var _this = this;
     function is2048() {
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
-                if (_this.pieceArr[i][j] === 2048) {
+                if (_this.pieceArr[i][j] === 2048) {    //如果有一个棋子等于2048
                     return true;
                 }
             }
         }
         return false;
     }
-    if (!is2048()) {
+    if (!is2048()) {  //没有2048
         console.log('no');
         
-        if (!this.canMoveDown() && !this.canMoveLeft() && !this.canMoveRight() && !this.canMoveUp()) {
+        if (!this.canMoveDown() && !this.canMoveLeft() && !this.canMoveRight() && !this.canMoveUp()) {    //如果下左右上都不能移动
             clearTimeout(timer)
             var timer = setTimeout(function() {
-                // alert('fail'); 
+                 
                 _this.again();
             },500)            
         }
-    } else {
+    } else {  //有2048
         clearTimeout(timer)
         var timer = setTimeout(function () {
-            // alert('fail'); 
+           
             _this.again();
         }, 500) 
     }
     
 }
+//重来
 Game.prototype.again = function() {
     var _this = this;
     var frag = document.createDocumentFragment();
@@ -552,7 +540,7 @@ Game.prototype.again = function() {
 
     var btn = document.createElement('button');
     btn.id = 'again';
-    btn.className = 'again';
+    btn.className = 'again-btn';
     btn.innerHTML ='重来';
     // var btn = document.getElementById('again')
     btn.addEventListener('click', function() {
@@ -567,17 +555,23 @@ Game.prototype.again = function() {
     wrap.appendChild(score);
     wrap.appendChild(btn);
     frag.appendChild(wrap);
-    // var chessboard = document.getElementById('chessboard');
     var gameWrap = document.getElementsByClassName('game-wrap')[0];
-    gameWrap.appendChild(frag);
+    gameWrap.appendChild(frag);    
 }
 Game.prototype.deleteAll = function() {
     var chessboard = document.getElementById('chessboard');
     while (chessboard.hasChildNodes()) chessboard.removeChild(chessboard.lastChild);
 }
+//更新数据
 Game.prototype.updateScore = function() {
     var scoreBox = document.getElementById('score');
     scoreBox.innerText = this.score;
+    var historyScore = localStorage.getItem('historyScore')
+    if (this.score > historyScore) {
+        localStorage.setItem('historyScore', this.score);
+    }
+    var history = document.getElementById('historyScore');
+    history.innerText = historyScore || 0;
 }
 window.onload = function() {
     var game = new Game();

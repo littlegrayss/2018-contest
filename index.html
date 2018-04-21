@@ -65,7 +65,22 @@
         document.body.addEventListener('touchmove',function(e) {
             e.preventDefault();
         },{passive:false})
+        //函数防抖，防止多次移动
+        function _debounce(fn,wait){
+            var timeout;
+            return function(){
+                var context = this;
+                var args = arguments;
+                
+                clearTimeout(timeout)
+                timeout = setTimeout(function() {
+                    fn.apply(context,args);
+                },wait);
+                
+            }
+        }
 
+        
     </script>
     <script src="./js/main.js"></script>
 </body>

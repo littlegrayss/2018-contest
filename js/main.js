@@ -83,8 +83,12 @@ Game.prototype.deletePiece = function(y, x) {
 //监听上下左右键
 Game.prototype.listenEvent = function() {
     var _this = this;
-    document.onkeydown = KeyDown;
+    // document.addEventListener('keydown',function(e) {
+    //     KeyDown(e);
+    // })
+    document.onkeydown = _debounce(KeyDown,200);
     function KeyDown(e) {
+        // console.log(e)
         var keycode = e.which;        
         console.log(keycode);
         switch(keycode) {
@@ -144,8 +148,8 @@ Game.prototype.listenEvent = function() {
 Game.prototype.liestenTouch = function() {
     var _this = this;
     var startX, startY, endX, endY;
-    document.addEventListener('touchstart',touchFn,false);
-    document.addEventListener('touchend',touchFn,false);
+    document.addEventListener('touchstart',_debounce( function(e) {touchFn(e)},false),200);
+    document.addEventListener('touchend', _debounce(function (e) { touchFn(e) }, false), 200);
     function touchFn(e) {
         // e.preventDefault();
         // if (e.cancelable) {
@@ -275,14 +279,12 @@ Game.prototype.moveUp = function() {
                     this.movePiece(j, i, next, i, this.pieceArr[next][i]);
                     this.pieceArr[next][i] = 0;
                     j--;
-                    console.log(this.pieceArr);
                 } else if (this.pieceArr[next][i] === this.pieceArr[j][i]) {
                     localScore += this.pieceArr[j][i]*2;
                     this.mergePiece(j, i, next, i, this.pieceArr[next][i] * 2);                    
                     this.pieceArr[j][i] = this.pieceArr[next][i] + this.pieceArr[j][i];
                     
                     this.pieceArr[next][i] = 0;
-                    console.log(this.pieceArr); 
                 }     
             }
         }
@@ -403,12 +405,10 @@ Game.prototype.movePiece = function (toY, toX, fromY, fromX, num) {
     var div = document.getElementById(fromY + ' ' + fromX);
     var x = parseInt(div.style.left)
     var y = parseInt(div.style.top);
-    console.log(x, y)
     var timer = null;
 
     (function () {
-        clearInterval(timer);
-        console.time('time1')
+        // clearInterval(timer);
         timer = setInterval(function () {
             if (x < toX * 6) {
                 x = x + 0.5;
@@ -428,12 +428,11 @@ Game.prototype.movePiece = function (toY, toX, fromY, fromX, num) {
                 clearInterval(timer);
                 setTimeout(function () {
                     _this.deletePiece(fromY, fromX);
-                    _this.drawPiece(toY, toX, num, false, false)
-                    console.timeEnd('time1')
+                    _this.drawPiece(toY, toX, num)
                 }, 0)
             }
         }, 10)
-    })
+    })()
     
 
 }
@@ -453,11 +452,10 @@ Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
     var div = document.getElementById(fromY + ' ' + fromX);
     var x = parseInt(div.style.left)
     var y = parseInt(div.style.top);
-    console.log(x, y)
     var timer = null;
 
     (function () {
-        clearInterval(timer);
+        // clearInterval(timer);
         timer = setInterval(function () {
             if (x < toX * 6) {
                 x = x + 0.5;
@@ -478,11 +476,13 @@ Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
                 setTimeout(function () {
                     _this.deletePiece(fromY, fromX);
                     _this.deletePiece(toY, toX);
-                    _this.drawPiece(toY,toX,num,false,true);
+                    var option = {}
+                    option.isMerge=true;
+                    _this.drawPiece(toY,toX,num,option);
                 }, 0)
             }
         }, 10)
-    })
+    })()
    
 
 
@@ -509,7 +509,6 @@ Game.prototype.checkWin = function() {
         return false;
     }
     if (!is2048()) {  //没有2048
-        console.log('no');
         
         if (!this.canMoveDown() && !this.canMoveLeft() && !this.canMoveRight() && !this.canMoveUp()) {    //如果下左右上都不能移动
             clearTimeout(timer)

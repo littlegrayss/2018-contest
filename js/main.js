@@ -41,10 +41,10 @@ Game.prototype.createPiece = function() {
 }
 /*
  * 绘制棋子
- * param1：棋子纵坐标
- * param2：棋子横坐标
- * param3：棋子数字
- * param4: 棋子配置：
+ * param1：{number} 棋子纵坐标
+ * param2：{number} 棋子横坐标
+ * param3：{number} 棋子数字
+ * param4: {object} 棋子配置：
  *      sNew: true 新棋子的样式
  *      isMerge: true 合并棋子的样式
  */
@@ -93,12 +93,12 @@ Game.prototype.listenEvent = function() {
         console.log(keycode);
         switch(keycode) {
             case 37: { 
-                if (_this.canMoveLeft()) { 
-                    _this.moveLeft();                   
-                    setTimeout(function () {
-                        _this.createPiece(); 
-                        _this.updateScore();
-                        _this.checkWin(); 
+                if (_this.canMoveLeft()) { //判断能否移动
+                    _this.moveLeft();      //移动
+                    setTimeout(function () {  //延迟新棋子生成时间
+                        _this.createPiece();   //生成新棋子
+                        _this.updateScore();  //更新成绩
+                        _this.checkWin();   //判断输赢
                     }, 300) 
                                       
                 }     
@@ -172,16 +172,22 @@ Game.prototype.liestenTouch = function() {
                     if (startX - endX >= 25) {
                         if (_this.canMoveLeft()) {
                             _this.moveLeft();
-                            setTimeout(function () { _this.createPiece(); }, 300)
-                            _this.updateScore();
-                            _this.checkWin();
+                            setTimeout(function () { 
+                                _this.createPiece(); 
+                                _this.updateScore();
+                                _this.checkWin();
+                            }, 300)
+                            
                         }
                     } else if (endX - startX >= 25){
                             if (_this.canMoveRight()) {
                                 _this.moveRight();
-                                setTimeout(function () { _this.createPiece(); }, 300)
-                                _this.updateScore();
-                                _this.checkWin();
+                                setTimeout(function () { 
+                                    _this.createPiece(); 
+                                    _this.updateScore();
+                                    _this.checkWin();
+                                }, 300)
+                                
                             }
                         }
                     
@@ -190,16 +196,22 @@ Game.prototype.liestenTouch = function() {
                         
                         if (_this.canMoveUp()) {
                             _this.moveUp();
-                            setTimeout(function () { _this.createPiece(); }, 300)
-                            _this.updateScore();
-                            _this.checkWin();
+                            setTimeout(function () { 
+                                _this.createPiece(); 
+                                _this.updateScore();
+                                _this.checkWin();
+                            }, 300)
+                            
                         }
                     } else if (endY - startY >= 25){
                         if (_this.canMoveDown()) {
                             _this.moveDown();
-                            setTimeout(function () { _this.createPiece(); }, 300)
-                            _this.updateScore();
-                            _this.checkWin();
+                            setTimeout(function () { 
+                                _this.createPiece(); 
+                                _this.updateScore();
+                                _this.checkWin();
+                            }, 300)
+                            
                         }
                     }
                 }
@@ -265,7 +277,7 @@ Game.prototype.moveUp = function() {
         for (var j = 0; j < 4; j++) {
 
             var next = -1;
-            for (var m = j + 1, len = this.pieceArr[i].length; m < len; m++) {
+            for (var m = j + 1, len = this.pieceArr[i].length; m < len; m++) {   //下指针查找第一个不为0的棋子
 
                 if (this.pieceArr[m][i] !== 0) {
                     next = m;
@@ -273,13 +285,13 @@ Game.prototype.moveUp = function() {
                 }
             }
             if (next !== -1) {
-                if (this.pieceArr[j][i] === 0) {
+                if (this.pieceArr[j][i] === 0) {    //如果上指针指向的棋子为0，则与下指针的棋子交换
                     
                     this.pieceArr[j][i] = this.pieceArr[next][i];
                     this.movePiece(j, i, next, i, this.pieceArr[next][i]);
                     this.pieceArr[next][i] = 0;
                     j--;
-                } else if (this.pieceArr[next][i] === this.pieceArr[j][i]) {
+                } else if (this.pieceArr[next][i] === this.pieceArr[j][i]) {    //如果上指针与下指针棋子相同，则上指针=上指针+下指针，下指针为0
                     localScore += this.pieceArr[j][i]*2;
                     this.mergePiece(j, i, next, i, this.pieceArr[next][i] * 2);                    
                     this.pieceArr[j][i] = this.pieceArr[next][i] + this.pieceArr[j][i];
@@ -392,11 +404,11 @@ Game.prototype.moveRight = function() {
    
 }
 /*  移动棋子
- *  param1：  最终移动位置的纵坐标
- *  param2：  最终移动位置的横坐标
- *  param3：  开始移动位置的纵坐标
- *  param4：  开始移动位置的横坐标
- *  param5：  要移动的数字
+ *  param1：{number}   最终移动位置的纵坐标
+ *  param2：{number}   最终移动位置的横坐标
+ *  param3：{number}   开始移动位置的纵坐标
+ *  param4：{number}   开始移动位置的横坐标
+ *  param5：{number}   要移动的数字
  */ 
 Game.prototype.movePiece = function (toY, toX, fromY, fromX, num) {
     console.log('move');  
@@ -437,11 +449,11 @@ Game.prototype.movePiece = function (toY, toX, fromY, fromX, num) {
 
 }
 /*  合并棋子
- *  param1：  第一个棋子位置的纵坐标
- *  param2：  第一个棋子位置的横坐标
- *  param3：  第二个棋子位置的纵坐标
- *  param4：  第二个棋子位置的横坐标
- *  param5：  合并后的数字
+ *  param1：{number}   第一个棋子位置的纵坐标
+ *  param2：{number}   第一个棋子位置的横坐标
+ *  param3：{number}   第二个棋子位置的纵坐标
+ *  param4：{number}   第二个棋子位置的横坐标
+ *  param5：{number}   合并后的数字
  */
 Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
 
@@ -484,15 +496,6 @@ Game.prototype.mergePiece = function (toY, toX, fromY, fromX,num) {
         }, 10)
     })()
    
-
-
-
-
-
-
-    // this.deletePiece(fromY,fromX); 
-    // this.deletePiece(toY, toX);
-    // this.drawPiece(toY,toX,num,false,true);
 
 }
 //判断输赢

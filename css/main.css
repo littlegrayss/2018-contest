@@ -185,7 +185,7 @@ header {
     text-align: center;
     font-size: 36px;
 }
-@-moz-keyframes fade-in {
+@keyframes fade-in {
     0% {
         opacity: 0;
     }
